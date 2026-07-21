@@ -1,6 +1,7 @@
 package com.jonathan.gestion_empleados.Service;
 
 
+import com.jonathan.gestion_empleados.Exception.EmpleadoNoEncontradoException;
 import com.jonathan.gestion_empleados.Modelo.Empleado;
 import com.jonathan.gestion_empleados.Repository.EmpleadosRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +21,8 @@ public class EmpleadoServiceImpl implements EmpleadoService {
 
     @Override
     public Empleado buscarPorId(Long id) {
-        return repository.findById(id).orElse(null);
+        return repository.findById(id)
+                .orElseThrow(() -> new EmpleadoNoEncontradoException(id));
     }
 
     @Override
@@ -30,13 +32,19 @@ public class EmpleadoServiceImpl implements EmpleadoService {
 
     @Override
     public Empleado actualizar(Long id, Empleado e) {
+        if (!repository.existsById(id)) {
+            throw new EmpleadoNoEncontradoException(id);
+        }
         e.setId(id);
         return repository.save(e);
     }
 
     @Override
     public void eliminar(Long id) {
+        if (!repository.existsById(id)) {
+            throw new EmpleadoNoEncontradoException(id);
+        }
         repository.deleteById(id);
-
     }
 }
+
